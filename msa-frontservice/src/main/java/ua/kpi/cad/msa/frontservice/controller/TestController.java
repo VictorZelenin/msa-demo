@@ -29,4 +29,9 @@ public class TestController {
 
         return result;
     }
+
+    @GetMapping("/hello")
+    public String helloMan() {
+        return "Hello Cruel Docker World!";
+    }
 }

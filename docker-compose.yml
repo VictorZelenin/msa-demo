@@ -1,31 +1,28 @@
 version: '3'
 services:
-  zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
-    ports:
-      - "2181:2181"
-  kafka:
-    image: wurstmeister/kafka:1.0.0
-    links:
-      - zookeeper
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: kafka
-      KAFKA_ADVERTISED_PORT: 9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "test_topic:1:1, encryption_topic:1:1"
   front:
-    build: ./msa-frontservice
+    image: msa-frontservice
     ports:
-      - "8080:8080"
-    links:
-      - kafka
+      - "8084:8084"
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+    depends_on:
+      - kafka
   encryption:
-    build: ./msa-encryptionservice
+    image: msa-encryptionservice
     ports:
-      - "8081:8081"
-    links:
-      - kafka
+      - "8085:8085"
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
+    depends_on:
+      - kafka
+  stats:
+    image: stats-service
+    ports:
+      - "5000:5000"
+    depends_on:
+      - kafka
+  kafka:
+    image: vmykh/kafka-test
